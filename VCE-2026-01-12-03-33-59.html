@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al-Khidmah Blood Circle | Jobayer Hossan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #d90429; --secondary: #800000; --bg: #fdfdfd; --white: #ffffff; --accent: #27ae60; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', 'Hind Siliguri', sans-serif; background: var(--bg); overflow-x: hidden; }
+
+        .lang-switcher { position: absolute; top: 15px; right: 15px; z-index: 1001; background: rgba(255, 255, 255, 0.2); color: white; border: 1px solid white; padding: 6px 15px; border-radius: 50px; font-weight: bold; cursor: pointer; backdrop-filter: blur(5px); transition: 0.3s; }
+        .lang-switcher:hover { background: white; color: var(--primary); }
+        
+        header { background: linear-gradient(135deg, var(--secondary), var(--primary)); color: white; padding: 80px 20px; text-align: center; border-bottom-left-radius: 50px; border-bottom-right-radius: 50px; position: relative; overflow: hidden; }
+        
+        .motion-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .blood-drop, .blood-bag { position: absolute; opacity: 0.2; animation: floatUp 12s infinite linear; }
+        .blood-drop { background: white; border-radius: 50% 0 50% 50%; transform: rotate(-45deg); }
+        .blood-bag { width: 18px; height: 26px; border: 2px solid white; border-radius: 4px; }
+        @keyframes floatUp { 0% { bottom: -60px; transform: translateY(0) rotate(-45deg); opacity: 0; } 50% { opacity: 0.3; } 100% { bottom: 120%; transform: translateY(-100px) rotate(-45deg); opacity: 0; } }
+
+        .search-container { max-width: 500px; margin: -35px auto 30px; padding: 0 20px; position: relative; z-index: 1000; }
+        .search-bar { background: var(--white); display: flex; align-items: center; padding: 15px 25px; border-radius: 100px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid #eee; }
+        #mainSearch { width: 100%; border: none; outline: none; font-size: 16px; margin-left: 10px; font-family: 'Hind Siliguri'; }
+
+        .container { max-width: 1200px; margin: auto; padding: 10px; }
+        .donor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+        .card { background: var(--white); border-radius: 25px; padding: 15px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: 0.3s; cursor: pointer; border: 1px solid #f0f0f0; }
+        .card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 20px rgba(217, 4, 41, 0.1); }
+        .card img { width: 85px; height: 85px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); margin-bottom: 10px; background: #eee; }
+        .blood-badge { background: var(--primary); color: white; padding: 2px 10px; border-radius: 6px; font-size: 13px; font-weight: bold; }
+
+        .modal, .profile-pop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content, .profile-card { background: var(--white); width: 100%; max-width: 350px; padding: 35px 25px; border-radius: 35px; text-align: center; position: relative; animation: popUp 0.3s ease-out; }
+        @keyframes popUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .btn-call { background: var(--accent); color: white; padding: 14px; border-radius: 15px; text-decoration: none; font-weight: bold; display: block; border: 3px solid transparent; animation: softStrokeBlink 2s infinite; }
+        @keyframes softStrokeBlink { 0%, 100% { border-color: transparent; } 50% { border-color: white; box-shadow: 0 0 20px var(--accent); } }
+
+        .profile-card { background: linear-gradient(145deg, #1e1e1e, #111); color: white; border: 1px solid #333; }
+        footer { text-align: center; padding: 40px 20px; color: #666; font-size: 14px; }
+        footer a { color: var(--primary); text-decoration: none; font-weight: 800; cursor: pointer; }
+
+        @media (max-width: 600px) { .donor-grid { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+</head>
+<body>
+
+<header id="mainHeader">
+    <button class="lang-switcher" onclick="toggleLanguage()" id="langBtn">English</button>
+    <div class="motion-container" id="motionBox"></div>
+    <h1 id="h-title">আল-খিদমাহ ব্লাড সার্কেল</h1>
+    <p id="h-sub">শোক হোক শক্তি রক্ত, হোক মুক্তি</p>
+</header>
+
+<div class="search-container">
+    <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" id="mainSearch" placeholder="খুঁজুন (নাম, গ্রুপ বা এলাকা)...">
+    </div>
+</div>
+
+<div class="container">
+    <div class="donor-grid" id="donorList"></div>
+</div>
+
+<div class="modal" id="donorModal" onclick="checkClose(event, 'donorModal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span onclick="closeModal('donorModal')" style="position:absolute; top:15px; right:20px; cursor:pointer; font-size:24px;">&times;</span>
+        <div id="modalDetails"></div>
+    </div>
+</div>
+
+<div class="profile-pop" id="profilePop" onclick="checkClose(event, 'profilePop')">
+    <div class="profile-card" onclick="event.stopPropagation()">
+        <img src="https://i.ibb.co/LdqmQvX/5301.jpg" style="width:110px; border-radius:50%; border:3px solid var(--primary); margin-bottom:15px;">
+        <h2>Jobayer Hossan</h2>
+        <p style="color:var(--primary); font-weight:bold; letter-spacing:1px;">PROFESSIONAL DESIGNER</p>
+        <p style="font-size:13px; opacity:0.8; margin-top:10px;">📍 Bashikpur Ibrahim Hazi Bari, Lakshmipur</p>
+        <p style="font-size:13px; opacity:0.8;">📧 Jobayerhossan789.5@gmail.com</p>
+        <a href="tel:01839582261" class="btn-call" style="margin-top:20px;">Contact Me</a>
+    </div>
+</div>
+
+<footer><p>Created by <a onclick="openProfile()">Jobayer Hossan</a></p></footer>
+
+<script>
+    let currentLang = 'bn';
+    
+    // ==========================================
+    // DATA ENTRY SECTION (Image update kora ekhane sohoj)
+    // Format: [Bangla Name, English Name, Group, Bangla Loc, English Loc, Phone, Image Link]
+    // ==========================================
+    const rawData = [
+        ["মোঃ জোবায়ের হোসেন সিয়াম", "Jobayer Hossan Siam", "O+", "বশিকপুর, লক্ষীপুর", "Bashikpur, Lakshmipur", "01839582261", "https://i.ibb.co/LdqmQvX/5301.jpg"],
+        ["ফাহাদ আব্দুল্লাহ", "Fahad Abdullah", "B+", "ধর্মপুর, চাটখিল, নোয়াখালী", "Dharmapur, Chatkhil", "01609525083", "IMAGE_LINK"],
+        ["মোঃ আহাদ ইসলাম রাজিন", "Ahad Islam Rajin", "O+", "ধর্মপুর", "Dharmapur", "01604886217", "IMAGE_LINK"],
+        ["মেহেরাব হোসাইন", "Meherab Hossain", "A+", "ধর্মপুর, চাটখিল, নোয়াখালী", "Dharmapur, Chatkhil", "01342391338", "IMAGE_LINK"],
+        ["মাহদী হাসান মুআজ", "Mahdi Hasan Muaz", "A+", "ধর্মপুর, চাটখিল, নোয়াখালী", "Dharmapur, Chatkhil", "01686703611", "IMAGE_LINK"],
+        ["সিহাব", "Shihab", "B+", "ধর্মপুর, চাটখিল, নোয়াখালী", "Dharmapur, Chatkhil", "01839828692", "IMAGE_LINK"],
+        ["আবদুল আজিজ", "Abdul Aziz", "O+", "উত্তর রামনারায়নপুর, চাটখিল", "Ramnarayanpur, Chatkhil", "011881367282", "IMAGE_LINK"],
+        ["সুলতান মাহমুদ", "Sultan Mahmud", "B+", "উত্তর রামনারায়নপুর, চাটখিল", "Ramnarayanpur, Chatkhil", "01703196018", "IMAGE_LINK"],
+        ["মো: মোস্তাকিম শ্রাবন", "Mostakim Srabon", "O+", "খিলপাড়া, চাটখিল", "Khilpara, Chatkhil", "01308461613", "IMAGE_LINK"],
+        ["রুবায়েত হোসেন", "Rubayet Hossain", "O+", "ধর্মপুর, চাটখিল, নোয়াখালী", "Dharmapur, Chatkhil", "01742697554", "IMAGE_LINK"],
+        ["মোঃ ওমর ফারুক", "Omar Faruk", "O+", "দক্ষিন রামনারায়নপুর, চাটখিল", "Ramnarayanpur, Chatkhil", "01783753150", "IMAGE_LINK"],
+        ["হাবিব চৌধুরী", "Habib Chowdhury", "B+", "উত্তর রামনারায়পুর, চাটখিল", "Ramnarayanpur, Chatkhil", "01339409638", "IMAGE_LINK"],
+        ["মোঃ তাহাসান চৌধুরী নিলয়", "Tahasan Chowdhury", "B+", "ছোবহানপুর, চাটখিল", "Sobhanpur, Chatkhil", "01815205763", "IMAGE_LINK"],
+        ["সজল", "Sajal", "A+", "গোমাতলী", "Gomatoli", "01337039948", "IMAGE_LINK"],
+        ["আরমান", "Arman", "A+", "গোমাতলী, চাটখিল, নোয়াখালী", "Gomatoli, Chatkhil", "01748043597", "IMAGE_LINK"],
+        ["সাজ্জাদ আলম শুভ", "Sajjad Alam Shuvo", "A+", "প্রসাদপুর, চাটখিল, নোয়াখালী", "Prasadpur, Chatkhil", "01873229071", "IMAGE_LINK"],
+        ["ফয়সাল মাহমুদ নাফিস", "Faisal Mahmud Nafis", "O+", "ধর্মপুর, চাটখিল, নোয়াখালী", "Dharmapur, Chatkhil", "01876066410", "IMAGE_LINK"],
+        ["ফজলে রাব্বি", "Fazle Rabbi", "O-", "জয়নগর বাড়ি, চাটখিল, নোয়াখালী", "Joynagar, Chatkhil", "01616486041", "IMAGE_LINK"],
+        ["মজিদুল ইসলাম", "Majidul Islam", "O+", "মল্লিকা দিঘীরপাড়", "Mallika Dighirpar", "01321814216", "IMAGE_LINK"],
+        ["মোঃ হাসান", "Md Hasan", "B+", "সিংবাহুড়া, চাটখিল, নোয়াখালী", "Singbahura, Chatkhil", "01780139304", "IMAGE_LINK"],
+        ["মিনহাজ হোসেন তুষার", "Minhaj Hossain Tushar", "B+", "প্রসাদপুর, সোমপাড়া", "Prasadpur, Sompara", "01330361684", "IMAGE_LINK"],
+        ["মাহমুদুল হাসান রাকিব", "Mahmudul Hasan Rakib", "B+", "বৈকুন্ঠপুর, চাটখিল", "Baikunthpur, Chatkhil", "01321813497", "IMAGE_LINK"],
+        ["কাজী নাঈম", "Kazi Naim", "O+", "হাটপুকুরিয়া", "Hatpukuria", "01854996135", "IMAGE_LINK"],
+        ["মাহমুদ হোসেন মুন্না", "Mahmud Hossain Munna", "B+", "মল্লিকা দিঘির পাড়, চাটখিল", "Mallika Dighirpar", "01814537643", "IMAGE_LINK"],
+        ["মাহমুদুর রহমান পারভেজ", "Mahmudur Rahman", "B+", "রামনারায়নপুর", "Ramnarayanpur", "01825200865", "IMAGE_LINK"],
+        ["জাহেদ আলম", "Jahed Alam", "B+", "পশ্চিম রামনারায়নপুর", "West Ramnarayanpur", "01874116511", "IMAGE_LINK"],
+        ["ইয়াছিন আরাফাত", "Yasin Arafat", "B+", "রামনারায়নপুর", "Ramnarayanpur", "01880629233", "IMAGE_LINK"],
+        ["শাহাদাত হোসাইন রাফি", "Shahadat Hossain Rafi", "O+", "ধর্মপুর, চাটখিল, নোয়াখালী", "Dharmapur, Chatkhil", "01842277840", "IMAGE_LINK"],
+        ["মাহফুজুর রহমান মুন্না", "Mahfuzur Rahman", "O+", "চাটখিল, নোয়াখালী", "Chatkhil, Noakhali", "01316500134", "IMAGE_LINK"],
+        ["ইয়াসিন নূর", "Yasin Noor", "A+", "চাটখিল", "Chatkhil", "01858071987", "IMAGE_LINK"],
+        ["নাইমুল আবরার", "Naimul Abrar", "B+", "ধর্মপুর, দুবাই মার্কেট", "Dharmapur", "01604892188", "IMAGE_LINK"],
+        ["মিরাজ কুরাইশিক", "Miraj Quraishi", "O+", "ধর্মপুর", "Dharmapur", "01869754843", "IMAGE_LINK"],
+        ["মাসুম রাব্বানী", "Masum Rabbani", "A-", "নারায়ানপুর, চাটখিল", "Narayanpur, Chatkhil", "01888385804", "IMAGE_LINK"],
+        ["ইয়াছিন আরাফাত অন্তর", "Yasin Arafat Antor", "B+", "নারায়ানপুর, চাটখিল", "Narayanpur, Chatkhil", "01814542925", "IMAGE_LINK"],
+        ["মো: আরিফ হোসেন", "Md Arif Hossain", "O+", "নারায়ানপুর, চাটখিল", "Narayanpur, Chatkhil", "01806676231", "IMAGE_LINK"],
+        ["মাচুম", "Masum", "O+", "ধর্মপুর লোহার বাড়ি", "Dharmapur", "01854721140", "IMAGE_LINK"],
+        ["মাহদি বিন সাদেক", "Mahdi Bin Sadek", "AB+", "ধর্মপুর, চাটখিল, নোয়াখালী", "Dharmapur, Chatkhil", "01606511599", "IMAGE_LINK"],
+        ["সাব্বির ইসলাম হৃদয়", "Sabbir Islam Hridoy", "O+", "ধর্মপুর, চাটখিল, নোয়াখালী", "Dharmapur, Chatkhil", "01742731456", "IMAGE_LINK"],
+        ["মো: আরিফ খান", "Md Arif Khan", "O+", "নর্থ রামনারায়নপুর", "North Ramnarayanpur", "01841268091", "IMAGE_LINK"],
+        ["মাহবুব রহমান", "Mahbub Rahman", "A+", "ধর্মপুর, চাটখিল, নোয়াখালী", "Dharmapur, Chatkhil", "01619496291", "IMAGE_LINK"]
+    ];
+
+    const donors = rawData.map((d, i) => ({
+        bnName: d[0], enName: d[1], group: d[2], bnLoc: d[3], enLoc: d[4], phone: d[5], 
+        img: d[6] === "IMAGE_LINK" ? `https://i.pravatar.cc/150?u=${i}` : d[6]
+    }));
+
+    // Motion Elements
+    const motionBox = document.getElementById('motionBox');
+    for(let i=0; i<15; i++) {
+        let el = document.createElement('div');
+        el.className = Math.random() > 0.5 ? 'blood-drop' : 'blood-bag';
+        el.style.left = Math.random() * 100 + '%';
+        el.style.width = el.style.height = (Math.random() * 15 + 10) + 'px';
+        el.style.animationDelay = (Math.random() * 10) + 's';
+        motionBox.appendChild(el);
+    }
+
+    function toggleLanguage() {
+        currentLang = currentLang === 'bn' ? 'en' : 'bn';
+        document.getElementById('langBtn').innerText = currentLang === 'bn' ? 'English' : 'বাংলা';
+        document.getElementById('h-title').innerText = currentLang === 'bn' ? "আল-খিদমাহ ব্লাড সার্কেল" : "Al-Khidmah Blood Circle";
+        document.getElementById('h-sub').innerText = currentLang === 'bn' ? "শোক হোক শক্তি রক্ত, হোক মুক্তি" : "Let grief be strength, blood be liberation";
+        document.getElementById('mainSearch').placeholder = currentLang === 'bn' ? "খুঁজুন (নাম, গ্রুপ বা এলাকা)..." : "Search (Name, Group, Location)...";
+        render();
+    }
+
+    document.getElementById('mainSearch').addEventListener('input', function(e) {
+        let val = e.target.value.toUpperCase().trim();
+        let filtered = donors.filter(d => {
+            if (["A","B","O","AB"].includes(val)) return d.group.startsWith(val);
+            return d.bnName.includes(val) || d.enName.toUpperCase().includes(val) || d.group === val || d.phone.includes(val);
+        });
+        render(filtered);
+    });
+
+    function render(data = donors) {
+        document.getElementById('donorList').innerHTML = data.map(d => `
+            <div class="card" onclick="openDonorModal(${donors.indexOf(d)})">
+                <img src="${d.img}">
+                <h3 style="font-size:14px; margin-bottom:5px;">${currentLang === 'bn' ? d.bnName : d.enName}</h3>
+                <span class="blood-badge">${d.group}</span>
+                <p style="font-size:11px; margin-top:8px; color:#666;">📞 ${d.phone}</p>
+            </div>`).join('');
+    }
+
+    function openDonorModal(idx) {
+        const d = donors[idx];
+        document.getElementById('modalDetails').innerHTML = `
+            <img src="${d.img}" style="width:100px; height:100px; border-radius:50%; border:3px solid var(--primary); margin-bottom:15px; background:#eee;">
+            <h2>${currentLang === 'bn' ? d.bnName : d.enName}</h2>
+            <div style="font-size:26px; font-weight:bold; color:var(--primary); margin:10px 0;">${d.group}</div>
+            <p style="color:#555;">📍 ${currentLang === 'bn' ? d.bnLoc : d.enLoc}</p>
+            <p style="margin:15px 0; font-weight:bold; color:#333;">📞 ${d.phone}</p>
+            <a href="tel:${d.phone}" class="btn-call">কল করুন (Call Now)</a>`;
+        document.getElementById('donorModal').style.display = 'flex';
+    }
+
+    function openProfile() { document.getElementById('profilePop').style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function checkClose(e, id) { if (e.target.id === id) closeModal(id); }
+    render();
+</script>
+</body>
+</html>
